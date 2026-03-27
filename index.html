@@ -186,6 +186,15 @@ footer a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--bdr
 .notd-inv-a{font-family:Amiri,serif;font-size:16px;color:var(--cream);direction:rtl;line-height:1.7;margin-bottom:2px}
 .notd-inv-e{font-size:11px;color:var(--dim);font-style:italic}
 
+/* Dua-for mode toggle */
+.dua-for-toggle{display:flex;justify-content:center;gap:0;margin-bottom:18px;background:var(--surf);border-radius:25px;padding:3px;max-width:320px;margin-left:auto;margin-right:auto;border:1px solid var(--bdr)}
+.dua-for-toggle button{flex:1;padding:8px 12px;border:none;border-radius:22px;font-family:inherit;font-size:12px;color:var(--dim);background:transparent;cursor:pointer;transition:all .2s;font-weight:500}
+.dua-for-toggle button.active{background:rgba(201,168,76,.12);color:var(--cream);border:1px solid var(--gold)}
+.dua-for-fields{display:none;margin-bottom:12px}
+.dua-for-fields.show{display:block}
+.dua-for-note{font-size:11px;color:var(--teal);text-align:center;margin-bottom:12px;line-height:1.5;font-style:italic}
+.dua-for-hadith{font-size:10.5px;color:var(--dim);text-align:center;margin-top:-6px;margin-bottom:14px;line-height:1.5}
+
 /* Adhkar mode */
 .adhkar-toggle{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px}
 .adhkar-btn{background:var(--surf);border:1px solid var(--bdr);border-radius:25px;padding:9px 20px;font-family:inherit;font-size:12px;color:var(--dim);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
@@ -245,8 +254,22 @@ footer a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--bdr
 <div class="conv-title">What's on your heart?</div>
 <div class="conv-sub">Pour out what you're feeling, what you're going through, what you'd like to pray for. The more you share, the better we can find the right duas and Names of Allah for you.</div>
 </div>
+
+<div class="dua-for-toggle">
+<button id="DFM" class="active" onclick="setDuaFor('me')">🤲 For Me</button>
+<button id="DFS" onclick="setDuaFor('someone')">💙 For Someone Else</button>
+</div>
+
+<div class="dua-for-fields" id="DFF">
+<div class="dua-for-note">The Prophet ﷺ said: "No Muslim supplicates for his brother in his absence except that the angel says: and the same for you."</div>
+<div style="margin-bottom:10px"><label style="text-align:left">Their Name</label><input id="DFN" placeholder="e.g. Ahmed, Fatima…"></div>
+<div style="margin-bottom:10px"><label style="text-align:left">What are they going through?</label><textarea id="DFI" class="conv-input" style="min-height:80px" placeholder="They're struggling with…"></textarea></div>
+</div>
+
 <div style="margin-bottom:12px"><label style="text-align:left">Your Name</label><input id="UN" placeholder="e.g. Aisha, Omar…"></div>
+<div id="MYINPUT">
 <textarea id="UI" class="conv-input" placeholder="I've been feeling…"></textarea>
+</div>
 
 <div id="TD" class="tone-display" style="display:none">
   <span class="tone-icon" id="TI"></span>
@@ -310,7 +333,7 @@ footer a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--bdr
 </div>
 
 <script>
-var occ="general",len="medium",loved=[],res=null,shownDuaIdx=[],lastTone=null,lastWords=[],lastPhrases=[];
+var occ="general",len="medium",loved=[],res=null,shownDuaIdx=[],lastTone=null,lastWords=[],lastPhrases=[],duaForMode="me";
 
 /* ================================================================
    AUTHENTIC DUA DATABASE
@@ -1028,6 +1051,18 @@ function toggleOpt(){
 }
 
 /* ================================================================
+   DUA-FOR MODE TOGGLE
+   ================================================================ */
+function setDuaFor(mode){
+  duaForMode=mode;
+  document.getElementById("DFM").className=mode==="me"?"active":"";
+  document.getElementById("DFS").className=mode==="someone"?"active":"";
+  document.getElementById("DFF").className=mode==="someone"?"dua-for-fields show":"dua-for-fields";
+  document.getElementById("MYINPUT").style.display=mode==="me"?"block":"none";
+  document.getElementById("GB").textContent=mode==="me"?"\ud83e\udd32 Find My Dua":"\ud83d\udc99 Find Du'as For Them";
+}
+
+/* ================================================================
    UI INIT
    ================================================================ */
 var OC=[["general","🤲","General"],["morning","☀️","Adhkar"],["healing","💚","Healing"],["anxiety","🌙","Anxiety"],["rizq","💰","Rizq"],["guidance","✨","Guidance"],["forgiveness","🕊️","Forgiveness"],["anger","🔥","Anger"],["marriage","💍","Marriage"],["protection","🛡️","Protection"],["grief","💧","Grief"],["gratitude","🤲","Gratitude"],["knowledge","📖","Knowledge"],["travel","✈️","Travel"],["ramadan","🌜","Ramadan"],["children","👶","Children"],["parents","🤍","Parents"]];
@@ -1095,8 +1130,17 @@ function localNameMatch(occasion,count,tone){
    GENERATE
    ================================================================ */
 async function go(){
-  var intention=document.getElementById("UI").value.trim();
   var userName=document.getElementById("UN").value.trim();
+  var intention,forName="";
+
+  if(duaForMode==="someone"){
+    forName=document.getElementById("DFN").value.trim();
+    intention=document.getElementById("DFI").value.trim();
+    if(!intention&&!forName){intention="general dua for someone";}
+  }else{
+    intention=document.getElementById("UI").value.trim();
+  }
+
   var ct=len==="short"?2:len==="medium"?3:5;
   var nc=len==="short"?1:len==="medium"?2:3;
 
@@ -1114,7 +1158,8 @@ async function go(){
   var ldr=document.getElementById("L");ldr.classList.add("on");
   document.getElementById("R").classList.remove("on");
 
-  var msgs=userName?["Reading what's on your heart, "+userName+"…","Searching the Quran & Hadith…","Matching duas to your situation…","Selecting Names of Allah for you, "+userName+"…"]:["Reading what's on your heart…","Searching the Quran & Hadith…","Matching duas to your situation…","Selecting Names of Allah سبحانه وتعالى…"];
+  var displayName=duaForMode==="someone"?forName:userName;
+  var msgs=displayName?["Reading what's on your heart, "+userName+"…","Searching the Quran & Hadith…","Finding du'as for "+(forName||"them")+"…","Selecting Names of Allah…"]:["Reading what's on your heart…","Searching the Quran & Hadith…","Matching duas to your situation…","Selecting Names of Allah سبحانه وتعالى…"];
   var p=0,pf=document.getElementById("PF"),lt=document.getElementById("LT"),ait=document.getElementById("AIT");
   ait.textContent=tone?"Emotionally Matched":"Personalised";
   var iv=setInterval(function(){p+=Math.random()*8+2;if(p>88)p=88;pf.style.width=p+"%";lt.textContent=msgs[Math.min(Math.floor(p/24),msgs.length-1)]},700);
@@ -1153,7 +1198,7 @@ async function go(){
   shownDuaIdx=duas.map(function(d){return D.indexOf(d)}).filter(function(i){return i>=0});
   lastTone=tone;lastWords=words;lastPhrases=phrases;
 
-  res={duas:duas,names:names,conns:conns,whys:whys,userName:userName};
+  res={duas:duas,names:names,conns:conns,whys:whys,userName:userName,forName:forName,duaForMode:duaForMode};
 
   setTimeout(function(){
     ldr.classList.remove("on");
@@ -1164,18 +1209,26 @@ async function go(){
 }
 
 function renderResult(duas,names,conns,whys,tone,userName){
-  if(userName){
+  var forName=res?res.forName:"";
+  var isForSomeone=res&&res.duaForMode==="someone";
+  if(isForSomeone&&forName){
+    document.getElementById("DL").textContent="Du'as For "+forName;
+  }else if(userName){
     document.getElementById("DL").textContent=userName+"'s Du'as";
   }else{
     document.getElementById("DL").textContent="Your Du'as";
   }
   var usedNames=[];
   var dh="";
+  if(isForSomeone&&forName){
+    dh+='<div style="text-align:center;padding:14px;margin-bottom:18px;background:rgba(45,212,168,.05);border:1px solid rgba(45,212,168,.15);border-radius:10px"><div style="font-size:13px;color:#2dd4a8;margin-bottom:4px">💙 You\'re making du\'a for <b>'+forName+'</b></div><div style="font-size:11px;color:var(--dim);font-style:italic">The angel says: "And the same for you" — Muslim</div></div>';
+  }
+  var intentionText=isForSomeone?document.getElementById("DFI").value:document.getElementById("UI").value;
   duas.forEach(function(d,i){
     var why=whys[i]||"";
     var name=matchNameToDua(d,usedNames);
     if(name)usedNames.push(NM.indexOf(name));
-    var conn=name?buildConn(name,occ,lastPhrases,tone,document.getElementById("UI").value,userName):"";
+    var conn=name?buildConn(name,occ,lastPhrases,tone,intentionText,userName):"";
 
     dh+='<div class="db"><div class="da">'+d.a+'</div><div class="dt">'+d.t+'</div><div class="de">'+d.e+'</div>';
     if(why)dh+='<div class="dw">'+why+'</div>';
@@ -1320,7 +1373,9 @@ function regenerate(){
 function back(){document.getElementById("F").style.display="block";document.getElementById("R").classList.remove("on");document.getElementById("RG").style.display="none";document.getElementById("RGB").textContent="✦ Find More Du\u2019as ✦";document.getElementById("RGB").style.display="inline-block";document.getElementById("RGL").style.display="none";document.getElementById("RGL").textContent="Searching for more authentic supplications\u2026";shownDuaIdx=[];regenBusy=false;document.getElementById("F").scrollIntoView({behavior:"smooth"})}
 
 function cp(){
-  if(!res)return;var t="Qalbi \u2014 "+(res.userName?res.userName+"'s":"Your")+" Du'as\n\n";
+  if(!res)return;
+  var isFor=res.duaForMode==="someone"&&res.forName;
+  var t=isFor?"Du'as for "+res.forName+" \u2014 Qalbi\n\n":"Qalbi \u2014 "+(res.userName?res.userName+"'s":"Your")+" Du'as\n\n";
   res.duas.forEach(function(d,i){
     t+="══ Du'a "+(i+1)+" ══\n\n"+d.a+"\n\n"+d.t+"\n\n"+d.e+"\n\n"+(res.whys[i]?res.whys[i]+"\n\n":"")+"Source: "+d.s+"\nContext: "+d.x+"\n";
     if(res.pairedNames&&res.pairedNames[i]){
@@ -1333,8 +1388,11 @@ function cp(){
 }
 
 function sh(){
-  if(!res)return;var t="\ud83e\udd32 "+(res.userName?res.userName+"'s":"My")+" Du'as \u2014 Qalbi\n\n";
+  if(!res)return;
+  var isFor=res.duaForMode==="someone"&&res.forName;
+  var t=isFor?"\ud83e\udd32 "+res.forName+", someone made these du'as for you \u2014 Qalbi\n\n":"\ud83e\udd32 "+(res.userName?res.userName+"'s":"My")+" Du'as \u2014 Qalbi\n\n";
   res.duas.slice(0,2).forEach(function(d){t+=d.a+"\n"+d.e+"\nSource: "+d.s+"\n\n"});
+  if(isFor)t+="Made with love using Qalbi \u2014 qalbi-dua.netlify.app";
   window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank");
 }
 
