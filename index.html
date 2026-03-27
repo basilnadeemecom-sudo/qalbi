@@ -168,10 +168,23 @@ footer a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--bdr
 .dotd{position:relative;background:linear-gradient(170deg,var(--card),rgba(15,22,40,.95));border:1px solid var(--bdr);border-radius:16px;padding:20px 18px;margin-bottom:20px;overflow:hidden}
 .dotd::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 10%,var(--goldD) 50%,transparent 90%)}
 .dotd-lbl{font-size:9px;text-transform:uppercase;letter-spacing:2.5px;color:var(--gold);margin-bottom:12px;text-align:center;font-weight:600}
-.dotd .da{font-family:Amiri,serif;font-size:18px;line-height:1.9;color:var(--cream);text-align:right;direction:rtl;margin-bottom:8px}
+.dotd .da{font-family:Amiri,serif;font-size:18px;line-height:1.9;color:var(--cream);text-align:center;direction:rtl;margin-bottom:8px}
 .dotd .dt{font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;line-height:1.6;color:var(--goldL);margin-bottom:6px}
 .dotd .de{font-size:12.5px;line-height:1.6;font-weight:300;color:var(--txt)}
 .dotd .dr{margin-top:8px;font-size:11px;color:var(--dim)}
+
+/* Name of the Day */
+.notd{position:relative;background:linear-gradient(170deg,var(--card),rgba(15,22,40,.95));border:1px solid var(--bdr);border-radius:16px;padding:20px 18px;margin-bottom:20px;overflow:hidden;text-align:center}
+.notd::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 10%,var(--goldD) 50%,transparent 90%)}
+.notd-lbl{font-size:9px;text-transform:uppercase;letter-spacing:2.5px;color:var(--gold);margin-bottom:14px;font-weight:600}
+.notd-ar{font-family:Amiri,serif;font-size:36px;color:var(--gold);line-height:1.3;margin-bottom:6px}
+.notd-name{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:600;color:var(--cream);margin-bottom:2px}
+.notd-meaning{font-size:13px;color:var(--goldL);margin-bottom:10px}
+.notd-desc{font-size:12.5px;line-height:1.6;color:var(--txt);font-weight:300;max-width:500px;margin:0 auto 12px}
+.notd-inv{display:inline-block;padding:8px 16px;background:rgba(201,168,76,.05);border:1px solid var(--bdr);border-radius:8px;text-align:center}
+.notd-inv-lbl{font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);margin-bottom:4px;font-weight:500}
+.notd-inv-a{font-family:Amiri,serif;font-size:16px;color:var(--cream);direction:rtl;line-height:1.7;margin-bottom:2px}
+.notd-inv-e{font-size:11px;color:var(--dim);font-style:italic}
 
 /* Adhkar mode */
 .adhkar-toggle{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px}
@@ -203,6 +216,20 @@ footer a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--bdr
 <div class="dt" id="DOTD_T"></div>
 <div class="de" id="DOTD_E"></div>
 <div class="dr" id="DOTD_S"></div>
+</div>
+
+<!-- NAME OF THE DAY -->
+<div class="notd" id="NOTD">
+<div class="notd-lbl">✦ NAME OF ALLAH TODAY ✦</div>
+<div class="notd-ar" id="NOTD_A"></div>
+<div class="notd-name" id="NOTD_N"></div>
+<div class="notd-meaning" id="NOTD_M"></div>
+<div class="notd-desc" id="NOTD_D"></div>
+<div class="notd-inv">
+<div class="notd-inv-lbl">INVOKE THIS NAME TODAY</div>
+<div class="notd-inv-a" id="NOTD_IA"></div>
+<div class="notd-inv-e" id="NOTD_IE"></div>
+</div>
 </div>
 
 <!-- ADHKAR MODE -->
@@ -1471,7 +1498,6 @@ function shareCard(idx){
    DUA OF THE DAY
    ================================================================ */
 (function initDOTD(){
-  // Seed from date so it changes daily
   var today=new Date();
   var seed=today.getFullYear()*10000+(today.getMonth()+1)*100+today.getDate();
   var idx=seed%D.length;
@@ -1481,6 +1507,21 @@ function shareCard(idx){
   document.getElementById("DOTD_T").textContent=d.t;
   document.getElementById("DOTD_E").textContent=d.e;
   document.getElementById("DOTD_S").textContent=d.s;
+})();
+
+/* Name of the Day */
+(function initNOTD(){
+  var today=new Date();
+  var seed=today.getFullYear()*10000+(today.getMonth()+1)*100+today.getDate();
+  var idx=(seed*7+13)%NM.length;
+  var n=NM[idx];
+  if(!n)return;
+  document.getElementById("NOTD_A").textContent=n.a;
+  document.getElementById("NOTD_N").textContent=n.r;
+  document.getElementById("NOTD_M").textContent=n.m;
+  document.getElementById("NOTD_D").textContent=n.d;
+  document.getElementById("NOTD_IA").textContent=n.da;
+  document.getElementById("NOTD_IE").textContent=n.de;
 })();
 
 /* ================================================================
@@ -1514,6 +1555,7 @@ function startAdhkar(mode){
   // Hide form + other sections, show adhkar
   document.getElementById("F").style.display="none";
   document.getElementById("DOTD").style.display="none";
+  document.getElementById("NOTD").style.display="none";
   document.querySelector(".adhkar-toggle").style.display="none";
   document.getElementById("R").classList.remove("on");
   var ak=document.getElementById("AK");
@@ -1570,6 +1612,7 @@ function exitAdhkar(){
   document.getElementById("AK").style.display="none";
   document.getElementById("F").style.display="block";
   document.getElementById("DOTD").style.display="block";
+  document.getElementById("NOTD").style.display="block";
   document.querySelector(".adhkar-toggle").style.display="flex";
   document.getElementById("F").scrollIntoView({behavior:"smooth"});
 }
