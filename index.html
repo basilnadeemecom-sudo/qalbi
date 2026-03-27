@@ -163,6 +163,25 @@ footer a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--bdr
 .dw{margin-top:8px;font-size:11.5px;color:var(--teal);padding:7px 11px;background:rgba(45,212,168,.04);border-radius:7px;border-left:2px solid rgba(45,212,168,.2);line-height:1.5;font-style:italic}
 
 @media(min-width:640px){.hero h1{font-size:38px}.card{padding:32px 28px}.g{grid-template-columns:repeat(5,1fr)}.tp{grid-template-columns:repeat(5,1fr)}.len-g{grid-template-columns:repeat(3,1fr);max-width:320px}.dc{padding:32px 24px}.da{font-size:23px}.na{font-size:34px}.nc{padding:24px 20px}.conv-title{font-size:26px}.conv-input{min-height:140px;font-size:17px}}
+
+/* Dua of the Day */
+.dotd{position:relative;background:linear-gradient(170deg,var(--card),rgba(15,22,40,.95));border:1px solid var(--bdr);border-radius:16px;padding:20px 18px;margin-bottom:20px;overflow:hidden}
+.dotd::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 10%,var(--goldD) 50%,transparent 90%)}
+.dotd-lbl{font-size:9px;text-transform:uppercase;letter-spacing:2.5px;color:var(--gold);margin-bottom:12px;text-align:center;font-weight:600}
+.dotd .da{font-family:Amiri,serif;font-size:18px;line-height:1.9;color:var(--cream);text-align:right;direction:rtl;margin-bottom:8px}
+.dotd .dt{font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;line-height:1.6;color:var(--goldL);margin-bottom:6px}
+.dotd .de{font-size:12.5px;line-height:1.6;font-weight:300;color:var(--txt)}
+.dotd .dr{margin-top:8px;font-size:11px;color:var(--dim)}
+
+/* Adhkar mode */
+.adhkar-toggle{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px}
+.adhkar-btn{background:var(--surf);border:1px solid var(--bdr);border-radius:25px;padding:9px 20px;font-family:inherit;font-size:12px;color:var(--dim);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.adhkar-btn:active{transform:scale(.97)}
+.adhkar-btn.active{border-color:var(--gold);background:rgba(201,168,76,.08);color:var(--cream)}
+.adhkar-btn .adhkar-icon{font-size:16px}
+.adhkar-counter{font-size:11px;color:var(--dim);text-align:center;margin-bottom:14px}
+.adhkar-progress{height:3px;background:var(--surf);border-radius:3px;margin-bottom:16px;overflow:hidden}
+.adhkar-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--goldL));border-radius:3px;transition:width .5s ease}
 </style>
 </head>
 <body>
@@ -176,6 +195,21 @@ footer a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--bdr
 <p>Authentic duas paired with the Names of Allah سبحانه وتعالى — from the Quran and verified Hadith, selected for your specific situation.</p>
 </div>
 <div class="dv"><em></em></div>
+
+<!-- DUA OF THE DAY -->
+<div class="dotd" id="DOTD">
+<div class="dotd-lbl">✦ DUA OF THE DAY ✦</div>
+<div class="da" id="DOTD_A"></div>
+<div class="dt" id="DOTD_T"></div>
+<div class="de" id="DOTD_E"></div>
+<div class="dr" id="DOTD_S"></div>
+</div>
+
+<!-- ADHKAR MODE -->
+<div class="adhkar-toggle">
+<button class="adhkar-btn" id="ADB_M" onclick="startAdhkar('morning')"><span class="adhkar-icon">☀️</span> Morning Adhkar</button>
+<button class="adhkar-btn" id="ADB_E" onclick="startAdhkar('evening')"><span class="adhkar-icon">🌙</span> Evening Adhkar</button>
+</div>
 
 <!-- FORM -->
 <div class="card" id="F">
@@ -230,6 +264,19 @@ footer a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--bdr
 <div id="RG" style="display:none;text-align:center;margin:1.2em 0"><button id="RGB" onclick="regenerate()" style="background:linear-gradient(135deg,#1a2a3a,#0f1b2a);color:#c9a84c;border:1.5px solid #c9a84c;padding:12px 32px;border-radius:30px;font-family:'Cormorant Garamond',serif;font-size:1.05em;font-weight:700;cursor:pointer;letter-spacing:1px;transition:all .3s">✦ Find More Du'as ✦</button><div id="RGL" style="display:none;color:#c9a84c;margin-top:10px;font-family:'Outfit',sans-serif;font-size:.9em">Searching for more authentic supplications…</div></div>
 <div class="sb"><button onclick="cp()">📋 Copy</button><button onclick="sh()">💬 Share</button><button onclick="window.print()">🖨️ Print</button></div>
 <button class="rb" onclick="back()">✦ New du'a</button>
+</div>
+
+<!-- ADHKAR MODE RESULTS -->
+<div class="res" id="AK" style="display:none">
+<div class="dc">
+<div class="lbl" id="AK_LBL">☀️ Morning Adhkar</div>
+<div class="adhkar-counter" id="AK_CT">0 of 0 complete</div>
+<div class="adhkar-progress"><div class="adhkar-progress-fill" id="AK_PF" style="width:0%"></div></div>
+<div id="AK_DC"></div>
+</div>
+<div style="text-align:center;margin-top:18px">
+<button class="rb" onclick="exitAdhkar()">✦ Back to Qalbi</button>
+</div>
 </div>
 
 <footer>✦ Every dua sourced from the Quran and Sahih Hadith only.<br>Each includes its reference for your verification.<br><br><a href="#">Privacy</a> · <a href="#">Terms</a><br><br>May Allah سبحانه وتعالى accept your du'a.</footer>
@@ -1418,6 +1465,113 @@ function shareCard(idx){
       URL.revokeObjectURL(a.href);
     }
   },"image/png");
+}
+
+/* ================================================================
+   DUA OF THE DAY
+   ================================================================ */
+(function initDOTD(){
+  // Seed from date so it changes daily
+  var today=new Date();
+  var seed=today.getFullYear()*10000+(today.getMonth()+1)*100+today.getDate();
+  var idx=seed%D.length;
+  var d=D[idx];
+  if(!d)return;
+  document.getElementById("DOTD_A").textContent=d.a;
+  document.getElementById("DOTD_T").textContent=d.t;
+  document.getElementById("DOTD_E").textContent=d.e;
+  document.getElementById("DOTD_S").textContent=d.s;
+})();
+
+/* ================================================================
+   MORNING / EVENING ADHKAR MODE
+   ================================================================ */
+var adhkarDone={};
+
+function getAdhkarKey(mode){
+  var d=new Date();
+  return "adhkar_"+mode+"_"+d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();
+}
+
+function loadAdhkarProgress(mode){
+  try{
+    var saved=localStorage.getItem(getAdhkarKey(mode));
+    return saved?JSON.parse(saved):[];
+  }catch(e){return []}
+}
+
+function saveAdhkarProgress(mode,completed){
+  try{localStorage.setItem(getAdhkarKey(mode),JSON.stringify(completed))}catch(e){}
+}
+
+function startAdhkar(mode){
+  var pool=[];
+  for(var i=0;i<D.length;i++){
+    if(D[i].c.indexOf("morning")>=0)pool.push({idx:i,d:D[i]});
+  }
+  if(pool.length===0)return;
+
+  // Hide form + other sections, show adhkar
+  document.getElementById("F").style.display="none";
+  document.getElementById("DOTD").style.display="none";
+  document.querySelector(".adhkar-toggle").style.display="none";
+  document.getElementById("R").classList.remove("on");
+  var ak=document.getElementById("AK");
+  ak.style.display="block";
+
+  // Set label
+  var lbl=mode==="morning"?"☀️ Morning Adhkar":"🌙 Evening Adhkar";
+  document.getElementById("AK_LBL").textContent=lbl;
+
+  // Load progress
+  var completed=loadAdhkarProgress(mode);
+
+  // Render
+  renderAdhkar(pool,completed,mode);
+
+  ak.scrollIntoView({behavior:"smooth"});
+}
+
+function renderAdhkar(pool,completed,mode){
+  var total=pool.length;
+  var doneCount=completed.length;
+  document.getElementById("AK_CT").textContent=doneCount+" of "+total+" complete";
+  document.getElementById("AK_PF").style.width=Math.round((doneCount/total)*100)+"%";
+
+  var html="";
+  pool.forEach(function(item,i){
+    var d=item.d;
+    var isDone=completed.indexOf(item.idx)>=0;
+    var opacity=isDone?"opacity:.5;":"";
+    var check=isDone?"✓ ":"";
+    html+='<div class="db" style="'+opacity+'"><div class="da">'+d.a+'</div><div class="dt">'+d.t+'</div><div class="de">'+d.e+'</div>';
+    html+='<div class="dr"><b>Source:</b> '+d.s+'</div>';
+    html+='<button class="dua-share" style="margin-right:8px" onclick="toggleAdhkarDone('+item.idx+',\''+mode+'\')">'+check+(isDone?"Completed":"Mark as read")+'</button>';
+    html+='</div>';
+  });
+  document.getElementById("AK_DC").innerHTML=html;
+}
+
+function toggleAdhkarDone(duaIdx,mode){
+  var completed=loadAdhkarProgress(mode);
+  var pos=completed.indexOf(duaIdx);
+  if(pos>=0){completed.splice(pos,1)}else{completed.push(duaIdx)}
+  saveAdhkarProgress(mode,completed);
+
+  // Re-render
+  var pool=[];
+  for(var i=0;i<D.length;i++){
+    if(D[i].c.indexOf("morning")>=0)pool.push({idx:i,d:D[i]});
+  }
+  renderAdhkar(pool,completed,mode);
+}
+
+function exitAdhkar(){
+  document.getElementById("AK").style.display="none";
+  document.getElementById("F").style.display="block";
+  document.getElementById("DOTD").style.display="block";
+  document.querySelector(".adhkar-toggle").style.display="flex";
+  document.getElementById("F").scrollIntoView({behavior:"smooth"});
 }
 </script>
 </body>
