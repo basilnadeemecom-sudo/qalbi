@@ -1233,7 +1233,7 @@ function renderResult(duas,names,conns,whys,tone,userName){
       if(conn)dh+='<div class="dn-conn">'+conn+'</div>';
       dh+='<div class="dn-inv"><div class="dn-inv-lbl">INVOKE IN YOUR DU\'A</div><div class="dn-inv-a">'+name.da+'</div><div class="dn-inv-e">'+name.de+'</div></div></div>';
     }
-    var audioBtn=hasQuranAudio(d)?'<button class="dua-audio" id="ab_'+i+'" onclick="playDua('+i+')">🔊 Listen</button>':'';
+    var audioBtn=hasQuranAudio(d)?'<button class="dua-audio" id="ab_'+i+'" onclick="playDua('+i+')">🔊 Full Verse</button>':'';
     dh+='<button class="dua-share" onclick="shareCard('+i+')">✦ Share</button><button class="dua-dl" onclick="downloadCard('+i+')">📥 Save to Photos</button>'+audioBtn+'</div>';
   });
   document.getElementById("DC").innerHTML=dh;
@@ -1335,7 +1335,7 @@ function regenerate(){
         dh+='<div class="dn-inv"><div class="dn-inv-lbl">INVOKE IN YOUR DU\'A</div><div class="dn-inv-a">'+name.da+'</div><div class="dn-inv-e">'+name.de+'</div></div></div>';
       }
       var aIdx=res.duas.length+i;
-      var audioBtn2=hasQuranAudio(d)?'<button class="dua-audio" id="ab_'+aIdx+'" onclick="playDua('+aIdx+')">🔊 Listen</button>':'';
+      var audioBtn2=hasQuranAudio(d)?'<button class="dua-audio" id="ab_'+aIdx+'" onclick="playDua('+aIdx+')">🔊 Full Verse</button>':'';
       dh+='<button class="dua-share" onclick="shareCard('+aIdx+')">✦ Share</button><button class="dua-dl" onclick="downloadCard('+aIdx+')">📥 Save to Photos</button>'+audioBtn2+'</div>';
     });
     dc.insertAdjacentHTML("beforeend",dh);
@@ -1649,7 +1649,7 @@ function parseQuranRef(source){
 function stopAudio(){
   speechSynthesis.cancel();
   if(currentAudioEl){currentAudioEl.pause();currentAudioEl.src="";currentAudioEl=null}
-  document.querySelectorAll(".dua-audio.playing").forEach(function(b){b.className="dua-audio";b.innerHTML="\ud83d\udd0a Listen"});
+  document.querySelectorAll(".dua-audio.playing").forEach(function(b){b.className="dua-audio";b.innerHTML="\ud83d\udd0a Full Verse"});
   currentAudio=null;
 }
 
@@ -1688,24 +1688,24 @@ function playDua(idx){
             });
             var u=new SpeechSynthesisUtterance(d.e);
             u.lang="en-GB";if(enVoice)u.voice=enVoice;u.rate=0.9;
-            u.onend=function(){currentAudio=null;if(btn){btn.className="dua-audio";btn.innerHTML="\ud83d\udd0a Listen"}};
-            u.onerror=function(){currentAudio=null;if(btn){btn.className="dua-audio";btn.innerHTML="\ud83d\udd0a Listen"}};
+            u.onend=function(){currentAudio=null;if(btn){btn.className="dua-audio";btn.innerHTML="\ud83d\udd0a Full Verse"}};
+            u.onerror=function(){currentAudio=null;if(btn){btn.className="dua-audio";btn.innerHTML="\ud83d\udd0a Full Verse"}};
             speechSynthesis.speak(u);
           },800);
         }
       };
       audio.onerror=function(){
         currentAudioEl=null;currentAudio=null;
-        if(btn){btn.className="dua-audio";btn.innerHTML="\ud83d\udd0a Listen"}
+        if(btn){btn.className="dua-audio";btn.innerHTML="\ud83d\udd0a Full Verse"}
       };
       audio.play().catch(function(){
         currentAudio=null;
-        if(btn){btn.className="dua-audio";btn.innerHTML="\ud83d\udd0a Listen"}
+        if(btn){btn.className="dua-audio";btn.innerHTML="\ud83d\udd0a Full Verse"}
       });
     }
   }).catch(function(){
     currentAudio=null;
-    if(btn){btn.className="dua-audio";btn.innerHTML="\ud83d\udd0a Listen"}
+    if(btn){btn.className="dua-audio";btn.innerHTML="\ud83d\udd0a Full Verse"}
   });
 }
 
