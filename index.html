@@ -1670,79 +1670,123 @@ function exitAdhkar(){
 /* ================================================================
    AUDIO PLAYBACK — Arabic then English
    ================================================================ */
-var currentAudio=null;
+var currentAudio=null,currentAudioEl=null;
+
+function stopAudio(){
+  speechSynthesis.cancel();
+  if(currentAudioEl){currentAudioEl.pause();currentAudioEl.src="";currentAudioEl=null}
+  document.querySelectorAll(".dua-audio.playing").forEach(function(b){b.className="dua-audio";b.innerHTML="\ud83d\udd0a Listen"});
+  currentAudio=null;
+}
+
+function parseQuranRef(source){
+  // Match patterns like "Qur'an 2:201", "Quran 28:24", "Qur'an 18:10", "[2:201]", "[28:24]"
+  var m=source.match(/(?:Qur.?an|quran)\s+(\d+)\s*:\s*(\d+)/i)||source.match(/\[(\d+)\s*:\s*(\d+)\]/);
+  if(m)return{surah:parseInt(m[1]),ayah:parseInt(m[2])};
+  return null;
+}
+
+function getBestVoice(lang){
+  var voices=speechSynthesis.getVoices();
+  var best=null,fallback=null;
+  voices.forEach(function(v){
+    if(v.lang.indexOf(lang)!==0)return;
+    fallback=fallback||v;
+    // Prefer enhanced/premium voices
+    var n=v.name.toLowerCase();
+    if(n.indexOf("enhanced")>=0||n.indexOf("premium")>=0||n.indexOf("natural")>=0||n.indexOf("neural")>=0)best=v;
+    // iOS specific good voices
+    if(lang==="ar"&&(n.indexOf("maged")>=0||n.indexOf("samira")>=0))best=v;
+    if(lang==="en"&&(n.indexOf("daniel")>=0||n.indexOf("samantha")>=0||n.indexOf("karen")>=0))best=best||v;
+  });
+  return best||fallback;
+}
+
+function playEnglish(d,idx,btn){
+  var enVoice=getBestVoice("en");
+  var enUtter=new SpeechSynthesisUtterance(d.e);
+  enUtter.lang="en-GB";
+  if(enVoice)enUtter.voice=enVoice;
+  enUtter.rate=0.9;
+  enUtter.onend=function(){
+    currentAudio=null;
+    if(btn){btn.className="dua-audio";btn.innerHTML="\ud83d\udd0a Listen"}
+  };
+  enUtter.onerror=function(){
+    currentAudio=null;
+    if(btn){btn.className="dua-audio";btn.innerHTML="\ud83d\udd0a Listen"}
+  };
+  speechSynthesis.speak(enUtter);
+}
 
 function playDua(idx){
   var d=res.duas[idx];
   if(!d)return;
   var btn=document.getElementById("ab_"+idx);
 
-  // If already playing this dua, stop it
-  if(currentAudio===idx){
-    speechSynthesis.cancel();
-    currentAudio=null;
-    if(btn){btn.className="dua-audio";btn.innerHTML="🔊 Listen"}
-    return;
-  }
+  // Toggle off if already playing
+  if(currentAudio===idx){stopAudio();return}
 
-  // Stop any other playing audio
-  speechSynthesis.cancel();
-  // Reset all other buttons
-  document.querySelectorAll(".dua-audio.playing").forEach(function(b){b.className="dua-audio";b.innerHTML="🔊 Listen"});
-
+  stopAudio();
   currentAudio=idx;
-  if(btn){btn.className="dua-audio playing";btn.innerHTML="⏹ Stop"}
+  if(btn){btn.className="dua-audio playing";btn.innerHTML="\u23f9 Stop"}
 
-  // Get available voices
-  var voices=speechSynthesis.getVoices();
-  var arVoice=null,enVoice=null;
-  voices.forEach(function(v){
-    if(!arVoice&&v.lang.indexOf("ar")===0)arVoice=v;
-    if(!enVoice&&v.lang.indexOf("en")===0)enVoice=v;
-  });
+  // Check if this is a Quranic dua
+  var ref=parseQuranRef(d.s)||parseQuranRef(d.x||"");
+  if(ref){
+    // Fetch real recitation from Mishary Al-Afasy
+    var url="https://api.alquran.cloud/v1/ayah/"+ref.surah+":"+ref.ayah+"/ar.alafasy";
+    fetch(url).then(function(r){return r.json()}).then(function(data){
+      if(currentAudio!==idx)return;
+      if(data.code===200&&data.data.audio){
+        var audio=new Audio(data.data.audio);
+        currentAudioEl=audio;
+        audio.onended=function(){
+          currentAudioEl=null;
+          if(currentAudio===idx){
+            setTimeout(function(){
+              if(currentAudio===idx)playEnglish(d,idx,btn);
+            },800);
+          }
+        };
+        audio.onerror=function(){
+          currentAudioEl=null;
+          // Fallback to TTS
+          playArabicTTS(d,idx,btn);
+        };
+        audio.play().catch(function(){playArabicTTS(d,idx,btn)});
+      }else{
+        playArabicTTS(d,idx,btn);
+      }
+    }).catch(function(){
+      playArabicTTS(d,idx,btn);
+    });
+  }else{
+    // Hadith dua — use TTS
+    playArabicTTS(d,idx,btn);
+  }
+}
 
-  // Play Arabic first
+function playArabicTTS(d,idx,btn){
+  var arVoice=getBestVoice("ar");
   var arUtter=new SpeechSynthesisUtterance(d.a);
   arUtter.lang="ar-SA";
   if(arVoice)arUtter.voice=arVoice;
-  arUtter.rate=0.85;
-  arUtter.pitch=1;
-
-  // Then English
-  var enUtter=new SpeechSynthesisUtterance(d.e);
-  enUtter.lang="en-GB";
-  if(enVoice)enUtter.voice=enVoice;
-  enUtter.rate=0.9;
-  enUtter.pitch=1;
-
+  arUtter.rate=0.8;
   arUtter.onend=function(){
     if(currentAudio===idx){
-      // Brief pause then English
       setTimeout(function(){
-        if(currentAudio===idx)speechSynthesis.speak(enUtter);
-      },500);
+        if(currentAudio===idx)playEnglish(d,idx,btn);
+      },600);
     }
   };
-
-  enUtter.onend=function(){
-    currentAudio=null;
-    if(btn){btn.className="dua-audio";btn.innerHTML="🔊 Listen"}
-  };
-
-  // Handle errors
   arUtter.onerror=function(){
-    // If Arabic fails, try English only
-    if(currentAudio===idx)speechSynthesis.speak(enUtter);
+    if(currentAudio===idx)playEnglish(d,idx,btn);
   };
-  enUtter.onerror=function(){
-    currentAudio=null;
-    if(btn){btn.className="dua-audio";btn.innerHTML="🔊 Listen"}
-  };
-
   speechSynthesis.speak(arUtter);
 }
 
-// Preload voices (some browsers need this)
+// Preload voices
 if(speechSynthesis.onvoiceschanged!==undefined){
   speechSynthesis.onvoiceschanged=function(){speechSynthesis.getVoices()};
 }
