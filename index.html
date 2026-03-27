@@ -88,6 +88,10 @@ select{cursor:pointer}
 .db:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
 .dua-share{display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:7px 16px;background:rgba(201,168,76,.08);border:1px solid var(--bdr);border-radius:20px;font-family:inherit;font-size:11px;color:var(--gold);cursor:pointer;transition:all .2s}
 .dua-share:active{transform:scale(.95);background:rgba(201,168,76,.15)}
+.dua-audio{display:inline-flex;align-items:center;gap:5px;margin-top:10px;margin-left:8px;padding:7px 16px;background:rgba(45,212,168,.06);border:1px solid rgba(45,212,168,.2);border-radius:20px;font-family:inherit;font-size:11px;color:var(--teal);cursor:pointer;transition:all .2s}
+.dua-audio:active{transform:scale(.95);background:rgba(45,212,168,.12)}
+.dua-audio.playing{border-color:var(--teal);background:rgba(45,212,168,.12);animation:audioPulse 1.5s ease-in-out infinite}
+@keyframes audioPulse{0%,100%{opacity:1}50%{opacity:.6}}
 .dn-pair{margin-top:14px;padding:14px;background:linear-gradient(170deg,rgba(20,29,53,.6),rgba(15,22,40,.8));border:1px solid var(--bdr);border-radius:10px}
 .dn-pair .dn-lbl{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:8px;font-weight:500}
 .dn-pair .dn-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
@@ -1227,7 +1231,7 @@ function renderResult(duas,names,conns,whys,tone,userName){
       if(conn)dh+='<div class="dn-conn">'+conn+'</div>';
       dh+='<div class="dn-inv"><div class="dn-inv-lbl">INVOKE IN YOUR DU\'A</div><div class="dn-inv-a">'+name.da+'</div><div class="dn-inv-e">'+name.de+'</div></div></div>';
     }
-    dh+='<button class="dua-share" onclick="shareCard('+i+')">✦ Share this du\'a</button></div>';
+    dh+='<button class="dua-share" onclick="shareCard('+i+')">✦ Share this du\'a</button><button class="dua-audio" id="ab_'+i+'" onclick="playDua('+i+')">🔊 Listen</button></div>';
   });
   document.getElementById("DC").innerHTML=dh;
   document.getElementById("RG").style.display="block";
@@ -1327,7 +1331,7 @@ function regenerate(){
         if(conn)dh+='<div class="dn-conn">'+conn+'</div>';
         dh+='<div class="dn-inv"><div class="dn-inv-lbl">INVOKE IN YOUR DU\'A</div><div class="dn-inv-a">'+name.da+'</div><div class="dn-inv-e">'+name.de+'</div></div></div>';
       }
-      dh+='<button class="dua-share" onclick="shareCard('+(res.duas.length+i)+')">✦ Share this du\'a</button></div>';
+      dh+='<button class="dua-share" onclick="shareCard('+(res.duas.length+i)+')">✦ Share this du\'a</button><button class="dua-audio" id="ab_'+(res.duas.length+i)+'" onclick="playDua('+(res.duas.length+i)+')">🔊 Listen</button></div>';
     });
     dc.insertAdjacentHTML("beforeend",dh);
 
@@ -1662,6 +1666,87 @@ function exitAdhkar(){
   document.querySelector(".adhkar-toggle").style.display="flex";
   document.getElementById("F").scrollIntoView({behavior:"smooth"});
 }
+
+/* ================================================================
+   AUDIO PLAYBACK — Arabic then English
+   ================================================================ */
+var currentAudio=null;
+
+function playDua(idx){
+  var d=res.duas[idx];
+  if(!d)return;
+  var btn=document.getElementById("ab_"+idx);
+
+  // If already playing this dua, stop it
+  if(currentAudio===idx){
+    speechSynthesis.cancel();
+    currentAudio=null;
+    if(btn){btn.className="dua-audio";btn.innerHTML="🔊 Listen"}
+    return;
+  }
+
+  // Stop any other playing audio
+  speechSynthesis.cancel();
+  // Reset all other buttons
+  document.querySelectorAll(".dua-audio.playing").forEach(function(b){b.className="dua-audio";b.innerHTML="🔊 Listen"});
+
+  currentAudio=idx;
+  if(btn){btn.className="dua-audio playing";btn.innerHTML="⏹ Stop"}
+
+  // Get available voices
+  var voices=speechSynthesis.getVoices();
+  var arVoice=null,enVoice=null;
+  voices.forEach(function(v){
+    if(!arVoice&&v.lang.indexOf("ar")===0)arVoice=v;
+    if(!enVoice&&v.lang.indexOf("en")===0)enVoice=v;
+  });
+
+  // Play Arabic first
+  var arUtter=new SpeechSynthesisUtterance(d.a);
+  arUtter.lang="ar-SA";
+  if(arVoice)arUtter.voice=arVoice;
+  arUtter.rate=0.85;
+  arUtter.pitch=1;
+
+  // Then English
+  var enUtter=new SpeechSynthesisUtterance(d.e);
+  enUtter.lang="en-GB";
+  if(enVoice)enUtter.voice=enVoice;
+  enUtter.rate=0.9;
+  enUtter.pitch=1;
+
+  arUtter.onend=function(){
+    if(currentAudio===idx){
+      // Brief pause then English
+      setTimeout(function(){
+        if(currentAudio===idx)speechSynthesis.speak(enUtter);
+      },500);
+    }
+  };
+
+  enUtter.onend=function(){
+    currentAudio=null;
+    if(btn){btn.className="dua-audio";btn.innerHTML="🔊 Listen"}
+  };
+
+  // Handle errors
+  arUtter.onerror=function(){
+    // If Arabic fails, try English only
+    if(currentAudio===idx)speechSynthesis.speak(enUtter);
+  };
+  enUtter.onerror=function(){
+    currentAudio=null;
+    if(btn){btn.className="dua-audio";btn.innerHTML="🔊 Listen"}
+  };
+
+  speechSynthesis.speak(arUtter);
+}
+
+// Preload voices (some browsers need this)
+if(speechSynthesis.onvoiceschanged!==undefined){
+  speechSynthesis.onvoiceschanged=function(){speechSynthesis.getVoices()};
+}
+speechSynthesis.getVoices();
 </script>
 </body>
 </html>
