@@ -714,7 +714,7 @@ var OCC_DETECT={
   anxiety:["anxiety","anxious","worried","stress","panic","fear","nervous","overwhelm","pressure","cant sleep","insomnia","restless","uneasy","overthink"],
   rizq:["money","income","job","business","career","salary","debt","broke","financial","provision","earn","wealth","afford","bills","rent","mortgage","promotion","opportunity","startup","entrepreneur","hustle","rizq","halal income"],
   guidance:["guide","guidance","decision","confused","direction","career","path","choice","choose","sign","istikhara","purpose","lost","dont know what","clarity","future"],
-  forgiveness:["forgive","sin","mistake","guilt","regret","repent","tawbah","wrong","past","haram","ashamed","remorse"],
+  forgiveness:["forgive","sin","sins","sinning","mistake","guilt","guilty","regret","repent","tawbah","wrong","past","haram","ashamed","remorse","bad habit","keep doing","can't stop","falling back","same mistake"],
   marriage:["marriage","married","spouse","wife","husband","wedding","nikah","partner","love","relationship","couple","finding someone","single","proposal","divorce"],
   protection:["protect","safe","evil","harm","enemy","danger","evil eye","jinn","black magic","jealousy","nazar","enemies","threat","scared"],
   grief:["death","died","passed away","loss","lost","funeral","grief","mourning","miss","gone","bereaved","janazah","inna lillahi"],
@@ -731,10 +731,42 @@ var OCC_DETECT={
 function detectOccasion(text){
   var t=text.toLowerCase();
   var scores={};
+
+  // Idiomatic phrases that should NOT trigger certain categories
+  var idiomExclusions={
+    healing:["sick and tired","sick of","tired of","fed up"]
+  };
+
+  // High-value phrase matches (score 6 each)
+  var phrases={
+    forgiveness:["keep sinning","same sin","doing sins","committing sin","fell into sin","sin again","sins again","bad habits","keep falling","can't stop","addicted to","haram again","sinful","sinning","my sins","forgive me","repent","tawbah","feel guilty","feeling guilty","ashamed of","done wrong"],
+    anxiety:["can't sleep","losing my mind","breaking down","falling apart","so stressed","mental health","panic attack","anxious about"],
+    grief:["passed away","inna lillahi","someone died","lost my","miss them","miss him","miss her"],
+    rizq:["halal income","can't afford","no money","in debt","financial trouble","struggling financially","need a job","lost my job"],
+    parents:["my mother","my father","my mum","my dad","my mom","my parents","fallen out with"],
+    children:["trying to conceive","want a baby","want children","my children","my kids","my son","my daughter"],
+    marriage:["finding someone","get married","want to marry","my wife","my husband","my spouse"]
+  };
+
   for(var cat in OCC_DETECT){
     scores[cat]=0;
+
+    // Check idiom exclusions
+    var excluded=false;
+    if(idiomExclusions[cat]){
+      idiomExclusions[cat].forEach(function(idiom){if(t.indexOf(idiom)>=0)excluded=true});
+    }
+    if(excluded)continue;
+
     OCC_DETECT[cat].forEach(function(w){if(t.indexOf(w)>=0)scores[cat]+=2});
   }
+
+  // Apply phrase bonuses
+  for(var cat in phrases){
+    if(!scores[cat])scores[cat]=0;
+    phrases[cat].forEach(function(p){if(t.indexOf(p)>=0)scores[cat]+=6});
+  }
+
   var best="general",max=0;
   for(var cat in scores){if(scores[cat]>max){max=scores[cat];best=cat}}
   return best;
@@ -772,7 +804,10 @@ var WHY_TEMPLATES={
   worry:"You expressed worry and stress — this is the exact dua the Prophet ﷺ made to seek refuge from the feelings you described.",
   grief:"You're carrying a heavy heart — this dua was taught specifically for moments of deep sadness and loss.",
   struggling:"You mentioned struggling — this dua asks Allah to ease your affair, exactly what you need right now.",
-  sick:"You mentioned health concerns — this is the authenticated healing dua the Prophet ﷺ used for the sick.",
+  sin:"You mentioned wanting to break free from sin — this dua is exactly for moments of deep repentance, and Allah loves those who turn back to Him.",
+  sins:"You want to stop the cycle of sinning — this dua was taught by the Prophet \uFDFA for exactly this struggle. Allah's door of forgiveness never closes.",
+  sinning:"You're struggling with repeated sin — know that the Prophet \uFDFA said Allah is more pleased with your repentance than a man who finds his lost camel in the desert.",
+  sick:"You mentioned health concerns — this is the authenticated healing dua the Prophet \uFDFA used for the sick.",
   alone:"You expressed feeling alone — this dua reminds you that Allah never leaves you, not even for the blink of an eye.",
   forgive:"You mentioned wanting forgiveness — this is the most powerful forgiveness dua the Prophet ﷺ taught.",
   confused:"You're seeking clarity — this dua is specifically for when you need Allah to guide your decision.",
@@ -800,10 +835,14 @@ var WHY_TEMPLATES={
 
 function buildWhy(dua, words, tone, userName){
   var pre=userName?(userName+", "):"";
+  var rawInput=document.getElementById("UI")?document.getElementById("UI").value.toLowerCase():"";
+  var isSickIdiom=rawInput.indexOf("sick and tired")>=0||rawInput.indexOf("sick of")>=0;
   // Check keywords against why templates
   for(var key in WHY_TEMPLATES){
+    if(key==="sick"&&isSickIdiom)continue;
     if(words.indexOf(key)>=0)return pre+WHY_TEMPLATES[key].charAt(0).toLowerCase()+WHY_TEMPLATES[key].slice(1);
     for(var i=0;i<words.length;i++){
+      if(key==="sick"&&isSickIdiom)continue;
       if(key.indexOf(words[i])>=0||words[i].indexOf(key)>=0)return pre+WHY_TEMPLATES[key].charAt(0).toLowerCase()+WHY_TEMPLATES[key].slice(1);
     }
   }
