@@ -1161,7 +1161,6 @@ function cp(){
 function sh(){
   if(!res)return;var t="\ud83e\udd32 "+(res.userName?res.userName+"'s":"My")+" Du'as \u2014 Qalbi\n\n";
   res.duas.slice(0,2).forEach(function(d){t+=d.a+"\n"+d.e+"\nSource: "+d.s+"\n\n"});
-  t+="Find your authentic du'as at qalbi-dua.netlify.app";
   window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank");
 }
 
@@ -1239,6 +1238,29 @@ function shareCard(idx){
   x.fillStyle="#c9a84c";x.save();x.translate(W/2,divY);x.rotate(Math.PI/4);
   x.fillRect(-4,-4,8,8);x.restore();
 
+  // Transliteration - word wrap
+  x.font="italic 20px Cormorant Garamond, serif";x.fillStyle="#e4c870";x.textAlign="center";x.direction="ltr";
+  var transLines=[];
+  var tWords=(d.t||"").split(" ");
+  var currentLine="";
+  for(var i=0;i<tWords.length;i++){
+    var test=currentLine?currentLine+" "+tWords[i]:tWords[i];
+    if(x.measureText(test).width>maxW&&currentLine){
+      transLines.push(currentLine);
+      currentLine=tWords[i];
+    }else{
+      currentLine=test;
+    }
+  }
+  if(currentLine)transLines.push(currentLine);
+
+  var tY=divY+40;
+  var tLineH=30;
+  var maxTLines=Math.min(transLines.length,4);
+  for(var i=0;i<maxTLines;i++){
+    x.fillText(transLines[i],W/2,tY+i*tLineH);
+  }
+
   // English translation - word wrap
   x.font="300 24px Outfit, sans-serif";x.fillStyle="#d4cfc7";x.textAlign="center";x.direction="ltr";
   var engLines=[];
@@ -1255,7 +1277,7 @@ function shareCard(idx){
   }
   if(currentLine)engLines.push(currentLine);
 
-  var eY=divY+50;
+  var eY=tY+maxTLines*tLineH+25;
   var eLineH=36;
   var maxELines=Math.min(engLines.length,8);
   for(var i=0;i<maxELines;i++){
@@ -1268,28 +1290,26 @@ function shareCard(idx){
   x.fillText(d.s,W/2,srcY);
 
   // Bottom branding area
-  // Divider
-  var bDivY=H-140;
+  var bDivY=H-120;
   x.strokeStyle="rgba(201,168,76,.2)";x.lineWidth=1;
   x.beginPath();x.moveTo(W*.2,bDivY);x.lineTo(W*.8,bDivY);x.stroke();
 
-  // Qalbi logo
-  x.font="600 32px Cormorant Garamond, serif";
+  // Qalbi logo only - no URL
+  x.font="600 36px Cormorant Garamond, serif";
   x.fillStyle="#f0e6d3";
+  var fullW=x.measureText("Qalbi").width;
   var qalW=x.measureText("Qal").width;
-  x.fillText("Qal",W/2-x.measureText("Qalbi").width/2+qalW/2,H-90);
+  var startX=W/2-fullW/2;
+  x.textAlign="left";
+  x.fillText("Qal",startX,H-72);
   x.fillStyle="#c9a84c";
-  x.fillText("bi",W/2-x.measureText("Qalbi").width/2+qalW+x.measureText("bi").width/2,H-90);
-
-  // URL
-  x.font="16px Outfit, sans-serif";x.fillStyle="#8a8599";
-  x.fillText("qalbi-dua.netlify.app",W/2,H-60);
+  x.fillText("bi",startX+qalW,H-72);
 
   // Convert and share
   c.toBlob(function(blob){
     var file=new File([blob],"qalbi-dua.png",{type:"image/png"});
     if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
-      navigator.share({files:[file],title:"Du'a from Qalbi",text:d.e.substring(0,100)+"...\n\nFind your authentic du'as at qalbi-dua.netlify.app"}).catch(function(){});
+      navigator.share({files:[file],title:"Du'a from Qalbi",text:d.e.substring(0,100)+"..."}).catch(function(){});
     }else{
       var a=document.createElement("a");
       a.href=URL.createObjectURL(blob);
