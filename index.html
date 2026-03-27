@@ -88,6 +88,17 @@ select{cursor:pointer}
 .db:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
 .dua-share{display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:7px 16px;background:rgba(201,168,76,.08);border:1px solid var(--bdr);border-radius:20px;font-family:inherit;font-size:11px;color:var(--gold);cursor:pointer;transition:all .2s}
 .dua-share:active{transform:scale(.95);background:rgba(201,168,76,.15)}
+.dn-pair{margin-top:14px;padding:14px;background:linear-gradient(170deg,rgba(20,29,53,.6),rgba(15,22,40,.8));border:1px solid var(--bdr);border-radius:10px}
+.dn-pair .dn-lbl{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:8px;font-weight:500}
+.dn-pair .dn-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.dn-pair .dn-ar{font-family:Amiri,serif;font-size:26px;color:var(--gold);line-height:1}
+.dn-pair .dn-name{font-family:'Cormorant Garamond',serif;font-size:15px;font-weight:600;color:var(--cream)}
+.dn-pair .dn-meaning{font-size:12px;color:var(--dim)}
+.dn-pair .dn-conn{font-size:12.5px;color:var(--txt);line-height:1.6;margin-bottom:8px;opacity:.85}
+.dn-pair .dn-inv{padding:8px 10px;background:rgba(201,168,76,.04);border-radius:6px;border:1px solid var(--bdr)}
+.dn-pair .dn-inv-lbl{font-size:8px;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);margin-bottom:4px;font-weight:500}
+.dn-pair .dn-inv-a{font-family:Amiri,serif;font-size:16px;color:var(--cream);text-align:right;direction:rtl;line-height:1.7;margin-bottom:3px}
+.dn-pair .dn-inv-e{font-size:11px;color:var(--dim);font-style:italic}
 .da{font-family:Amiri,serif;font-size:20px;line-height:1.9;color:var(--cream);text-align:right;direction:rtl;margin-bottom:12px}
 .dt{font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;line-height:1.7;color:var(--goldL);margin-bottom:10px}
 .de{font-size:13.5px;line-height:1.7;font-weight:300}
@@ -217,9 +228,6 @@ footer a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--bdr
 <div class="res" id="R">
 <div class="dc"><div class="lbl" id="DL">Your Du'as</div><div id="DC"></div></div>
 <div id="RG" style="display:none;text-align:center;margin:1.2em 0"><button id="RGB" onclick="regenerate()" style="background:linear-gradient(135deg,#1a2a3a,#0f1b2a);color:#c9a84c;border:1.5px solid #c9a84c;padding:12px 32px;border-radius:30px;font-family:'Cormorant Garamond',serif;font-size:1.05em;font-weight:700;cursor:pointer;letter-spacing:1px;transition:all .3s">✦ Find More Du'as ✦</button><div id="RGL" style="display:none;color:#c9a84c;margin-top:10px;font-family:'Outfit',sans-serif;font-size:.9em">Searching for more authentic supplications…</div></div>
-<div class="nt" id="NT">Names of Allah سبحانه وتعالى</div>
-<div class="ns" id="NS">Call upon Allah by these Names — each connects to what is on your heart</div>
-<div id="NC"></div>
 <div class="sb"><button onclick="cp()">📋 Copy</button><button onclick="sh()">💬 Share</button><button onclick="window.print()">🖨️ Print</button></div>
 <button class="rb" onclick="back()">✦ New du'a</button>
 </div>
@@ -1082,32 +1090,66 @@ async function go(){
 }
 
 function renderResult(duas,names,conns,whys,tone,userName){
-  // Personalise headers
   if(userName){
     document.getElementById("DL").textContent=userName+"'s Du'as";
-    document.getElementById("NS").textContent=userName+", call upon Allah by these Names — each connects to what is on your heart";
   }else{
     document.getElementById("DL").textContent="Your Du'as";
-    document.getElementById("NS").textContent="Call upon Allah by these Names — each connects to what is on your heart";
   }
+  var usedNames=[];
   var dh="";
   duas.forEach(function(d,i){
     var why=whys[i]||"";
+    var name=matchNameToDua(d,usedNames);
+    if(name)usedNames.push(NM.indexOf(name));
+    var conn=name?buildConn(name,occ,lastPhrases,tone,document.getElementById("UI").value,userName):"";
+
     dh+='<div class="db"><div class="da">'+d.a+'</div><div class="dt">'+d.t+'</div><div class="de">'+d.e+'</div>';
     if(why)dh+='<div class="dw">'+why+'</div>';
-    dh+='<div class="dr"><b>Source:</b> '+d.s+'<br><b>Context:</b> '+d.x+'</div><button class="dua-share" onclick="shareCard('+i+')">✦ Share this du\'a</button></div>';
+    dh+='<div class="dr"><b>Source:</b> '+d.s+'<br><b>Context:</b> '+d.x+'</div>';
+    if(name){
+      dh+='<div class="dn-pair"><div class="dn-lbl">CALL UPON ALLAH BY THIS NAME</div>';
+      dh+='<div class="dn-head"><div class="dn-ar">'+name.a+'</div><div><div class="dn-name">'+name.r+'</div><div class="dn-meaning">'+name.m+'</div></div></div>';
+      if(conn)dh+='<div class="dn-conn">'+conn+'</div>';
+      dh+='<div class="dn-inv"><div class="dn-inv-lbl">INVOKE IN YOUR DU\'A</div><div class="dn-inv-a">'+name.da+'</div><div class="dn-inv-e">'+name.de+'</div></div></div>';
+    }
+    dh+='<button class="dua-share" onclick="shareCard('+i+')">✦ Share this du\'a</button></div>';
   });
   document.getElementById("DC").innerHTML=dh;
   document.getElementById("RG").style.display="block";
   document.getElementById("RGB").style.display="inline-block";
   document.getElementById("RGL").style.display="none";
 
-  var nh="";
-  names.forEach(function(n,i){
-    var conn=conns[i]||buildConn(n,occ,[],null,"",userName);
-    nh+='<div class="nc"><div class="nh"><div class="na">'+n.a+'</div><div><div class="nr">'+n.r+'</div><div class="nm">'+n.m+'</div></div></div><div class="nd">'+n.d+'</div><div class="cn"><b>How this connects to your du\'a: </b>'+conn+'</div><div class="ndb"><div class="ndl">INVOKE THIS NAME IN YOUR DU\'A</div><div class="nda">'+n.da+'</div><div class="nde">'+n.de+'</div></div></div>';
-  });
-  document.getElementById("NC").innerHTML=nh;
+  // Store paired names in res for copy/share
+  res.pairedNames=usedNames.map(function(idx){return NM[idx]});
+}
+
+function matchNameToDua(dua,usedIndices){
+  var duaCats=dua.c||[];
+  var scored=[];
+  for(var i=0;i<NM.length;i++){
+    if(usedIndices.indexOf(i)>=0)continue;
+    var n=NM[i];
+    var s=0;
+    // Category overlap
+    duaCats.forEach(function(c){if(n.ct.indexOf(c)>=0)s+=5});
+    // Keyword overlap between dua keywords and name categories
+    if(dua.kw){
+      dua.kw.forEach(function(kw){
+        n.ct.forEach(function(nc){if(kw.indexOf(nc)>=0||nc.indexOf(kw)>=0)s+=2});
+      });
+    }
+    // Boost specific matches
+    if(duaCats.indexOf("forgiveness")>=0&&(n.ct.indexOf("forgiveness")>=0))s+=3;
+    if(duaCats.indexOf("healing")>=0&&(n.ct.indexOf("healing")>=0))s+=3;
+    if(duaCats.indexOf("rizq")>=0&&(n.ct.indexOf("rizq")>=0))s+=3;
+    if(duaCats.indexOf("anxiety")>=0&&(n.ct.indexOf("anxiety")>=0))s+=3;
+    if(duaCats.indexOf("grief")>=0&&(n.ct.indexOf("grief")>=0))s+=3;
+    if(duaCats.indexOf("protection")>=0&&(n.ct.indexOf("protection")>=0))s+=3;
+    if(duaCats.indexOf("guidance")>=0&&(n.ct.indexOf("guidance")>=0))s+=3;
+    if(s>0)scored.push({idx:i,n:n,s:s});
+  }
+  scored.sort(function(a,b){return b.s-a.s||(Math.random()-.5)});
+  return scored.length>0?scored[0].n:NM[Math.floor(Math.random()*NM.length)];
 }
 
 var regenBusy=false;
@@ -1154,17 +1196,31 @@ function regenerate(){
     dc.appendChild(divider);
 
     var dh="";
+    var usedNames=res.pairedNames?res.pairedNames.map(function(n){return NM.indexOf(n)}).filter(function(i){return i>=0}):[];
     duas.forEach(function(d,i){
       var why=whys[i]||"";
+      var name=matchNameToDua(d,usedNames);
+      if(name)usedNames.push(NM.indexOf(name));
+      var conn=name?buildConn(name,occ,lastPhrases,lastTone,document.getElementById("UI").value,userName):"";
+
       dh+='<div class="db"><div class="da">'+d.a+'</div><div class="dt">'+d.t+'</div><div class="de">'+d.e+'</div>';
       if(why)dh+='<div class="dw">'+why+'</div>';
-      dh+='<div class="dr"><b>Source:</b> '+d.s+'<br><b>Context:</b> '+d.x+'</div><button class="dua-share" onclick="shareCard('+(res.duas.length+i)+')">✦ Share this du\'a</button></div>';
+      dh+='<div class="dr"><b>Source:</b> '+d.s+'<br><b>Context:</b> '+d.x+'</div>';
+      if(name){
+        dh+='<div class="dn-pair"><div class="dn-lbl">CALL UPON ALLAH BY THIS NAME</div>';
+        dh+='<div class="dn-head"><div class="dn-ar">'+name.a+'</div><div><div class="dn-name">'+name.r+'</div><div class="dn-meaning">'+name.m+'</div></div></div>';
+        if(conn)dh+='<div class="dn-conn">'+conn+'</div>';
+        dh+='<div class="dn-inv"><div class="dn-inv-lbl">INVOKE IN YOUR DU\'A</div><div class="dn-inv-a">'+name.da+'</div><div class="dn-inv-e">'+name.de+'</div></div></div>';
+      }
+      dh+='<button class="dua-share" onclick="shareCard('+(res.duas.length+i)+')">✦ Share this du\'a</button></div>';
     });
     dc.insertAdjacentHTML("beforeend",dh);
 
     // Update res for copy/share
     res.duas=res.duas.concat(duas);
     res.whys=res.whys.concat(whys);
+    if(!res.pairedNames)res.pairedNames=[];
+    res.pairedNames=res.pairedNames.concat(usedNames.slice(-duas.length).map(function(idx){return NM[idx]}));
 
     // Show button again (or hide if no more)
     var remaining=D.length-shownDuaIdx.length;
@@ -1191,9 +1247,14 @@ function back(){document.getElementById("F").style.display="block";document.getE
 
 function cp(){
   if(!res)return;var t="Qalbi \u2014 "+(res.userName?res.userName+"'s":"Your")+" Du'as\n\n";
-  res.duas.forEach(function(d,i){t+="══ Du'a "+(i+1)+" ══\n\n"+d.a+"\n\n"+d.t+"\n\n"+d.e+"\n\n"+(res.whys[i]?res.whys[i]+"\n\n":"")+"Source: "+d.s+"\nContext: "+d.x+"\n\n"});
-  t+="══ Names of Allah سبحانه وتعالى ══\n\n";
-  res.names.forEach(function(n,i){t+=n.a+" — "+n.r+" ("+n.m+")\n"+(res.conns[i]||"")+"\n\nDu'a: "+n.da+"\n"+n.de+"\n\n"});
+  res.duas.forEach(function(d,i){
+    t+="══ Du'a "+(i+1)+" ══\n\n"+d.a+"\n\n"+d.t+"\n\n"+d.e+"\n\n"+(res.whys[i]?res.whys[i]+"\n\n":"")+"Source: "+d.s+"\nContext: "+d.x+"\n";
+    if(res.pairedNames&&res.pairedNames[i]){
+      var n=res.pairedNames[i];
+      t+="\nCall upon: "+n.a+" — "+n.r+" ("+n.m+")\n"+n.da+"\n"+n.de+"\n";
+    }
+    t+="\n";
+  });
   navigator.clipboard.writeText(t).catch(function(){});
 }
 
