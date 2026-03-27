@@ -86,11 +86,11 @@ select{cursor:pointer}
 .dc .lbl{font-size:9px;text-transform:uppercase;letter-spacing:3px;color:var(--gold);margin-bottom:20px;text-align:center}
 .db{margin-bottom:22px;padding-bottom:22px;border-bottom:1px solid var(--bdr)}
 .db:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
-.dua-share{display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:7px 16px;background:rgba(201,168,76,.08);border:1px solid var(--bdr);border-radius:20px;font-family:inherit;font-size:11px;color:var(--gold);cursor:pointer;transition:all .2s}
+.dua-share{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:rgba(201,168,76,.08);border:1px solid var(--bdr);border-radius:20px;font-family:inherit;font-size:11px;color:var(--gold);cursor:pointer;transition:all .2s}
 .dua-share:active{transform:scale(.95);background:rgba(201,168,76,.15)}
-.dua-dl{display:inline-flex;align-items:center;gap:5px;margin-top:10px;margin-left:8px;padding:7px 16px;background:rgba(201,168,76,.04);border:1px solid var(--bdr);border-radius:20px;font-family:inherit;font-size:11px;color:var(--dim);cursor:pointer;transition:all .2s}
+.dua-dl{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:rgba(201,168,76,.04);border:1px solid var(--bdr);border-radius:20px;font-family:inherit;font-size:11px;color:var(--dim);cursor:pointer;transition:all .2s}
 .dua-dl:active{transform:scale(.95);background:rgba(201,168,76,.1)}
-.dua-audio{display:inline-flex;align-items:center;gap:5px;margin-top:10px;margin-left:8px;padding:7px 16px;background:rgba(45,212,168,.06);border:1px solid rgba(45,212,168,.2);border-radius:20px;font-family:inherit;font-size:11px;color:var(--teal);cursor:pointer;transition:all .2s}
+.dua-audio{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:rgba(45,212,168,.06);border:1px solid rgba(45,212,168,.2);border-radius:20px;font-family:inherit;font-size:11px;color:var(--teal);cursor:pointer;transition:all .2s}
 .dua-audio:active{transform:scale(.95);background:rgba(45,212,168,.12)}
 .dua-audio.playing{border-color:var(--teal);background:rgba(45,212,168,.12);animation:audioPulse 1.5s ease-in-out infinite}
 @keyframes audioPulse{0%,100%{opacity:1}50%{opacity:.6}}
@@ -306,7 +306,7 @@ footer a{color:var(--dim);text-decoration:none;border-bottom:1px solid var(--bdr
 <div class="res" id="R">
 <div class="dc"><div class="lbl" id="DL">Your Du'as</div><div id="DC"></div></div>
 <div id="RG" style="display:none;text-align:center;margin:1.2em 0"><button id="RGB" onclick="regenerate()" style="background:linear-gradient(135deg,#1a2a3a,#0f1b2a);color:#c9a84c;border:1.5px solid #c9a84c;padding:12px 32px;border-radius:30px;font-family:'Cormorant Garamond',serif;font-size:1.05em;font-weight:700;cursor:pointer;letter-spacing:1px;transition:all .3s">✦ Find More Du'as ✦</button><div id="RGL" style="display:none;color:#c9a84c;margin-top:10px;font-family:'Outfit',sans-serif;font-size:.9em">Searching for more authentic supplications…</div></div>
-<div class="sb"><button onclick="cp()">📋 Copy</button><button onclick="sh()">💬 Share</button><button onclick="window.print()">🖨️ Print</button></div>
+<div class="sb"><button onclick="cp()">📋 Copy</button><button onclick="sh()">💬 Share</button><button onclick="downloadCarousel()">📸 Save All Cards</button></div>
 <button class="rb" onclick="back()">✦ New du'a</button>
 </div>
 
@@ -1234,7 +1234,7 @@ function renderResult(duas,names,conns,whys,tone,userName){
       dh+='<div class="dn-inv"><div class="dn-inv-lbl">INVOKE IN YOUR DU\'A</div><div class="dn-inv-a">'+name.da+'</div><div class="dn-inv-e">'+name.de+'</div></div></div>';
     }
     var audioBtn=hasQuranAudio(d)?'<button class="dua-audio" id="ab_'+i+'" onclick="playDua('+i+')">🔊 Listen To Full Verse</button>':'';
-    dh+='<button class="dua-share" onclick="shareCard('+i+')">✦ Share</button><button class="dua-dl" onclick="downloadCard('+i+')">📥 Save to Photos</button>'+audioBtn+'</div>';
+    dh+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px"><button class="dua-share" onclick="shareCard('+i+')">✦ Share Post</button><button class="dua-share" onclick="shareStory('+i+')">📱 IG Story</button><button class="dua-dl" onclick="downloadCard('+i+')">📥 Save</button>'+audioBtn+'</div></div>';
   });
   document.getElementById("DC").innerHTML=dh;
   document.getElementById("RG").style.display="block";
@@ -1336,7 +1336,7 @@ function regenerate(){
       }
       var aIdx=res.duas.length+i;
       var audioBtn2=hasQuranAudio(d)?'<button class="dua-audio" id="ab_'+aIdx+'" onclick="playDua('+aIdx+')">🔊 Listen To Full Verse</button>':'';
-      dh+='<button class="dua-share" onclick="shareCard('+aIdx+')">✦ Share</button><button class="dua-dl" onclick="downloadCard('+aIdx+')">📥 Save to Photos</button>'+audioBtn2+'</div>';
+      dh+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:12px"><button class="dua-share" onclick="shareCard('+aIdx+')">✦ Share Post</button><button class="dua-share" onclick="shareStory('+aIdx+')">📱 IG Story</button><button class="dua-dl" onclick="downloadCard('+aIdx+')">📥 Save</button>'+audioBtn2+'</div></div>';
     });
     dc.insertAdjacentHTML("beforeend",dh);
 
@@ -1393,117 +1393,233 @@ function sh(){
   window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank");
 }
 
-function generateCardBlob(idx,callback){
+function drawIslamicBorder(x,W,H,margin){
+  var m=margin,gold="rgba(201,168,76,",s=12;
+  // Outer frame
+  x.strokeStyle=gold+".3)";x.lineWidth=2;x.strokeRect(m,m,W-m*2,H-m*2);
+  // Inner frame
+  x.strokeStyle=gold+".15)";x.lineWidth=1;x.strokeRect(m+8,m+8,W-m*2-16,H-m*2-16);
+  // Corner ornaments - 8-pointed star
+  [[m,m],[W-m,m],[m,H-m],[W-m,H-m]].forEach(function(p){
+    x.save();x.translate(p[0],p[1]);
+    x.fillStyle=gold+".5)";
+    for(var r=0;r<4;r++){
+      x.save();x.rotate(r*Math.PI/4);
+      x.beginPath();x.moveTo(0,-s);x.lineTo(s*.3,0);x.lineTo(0,s);x.lineTo(-s*.3,0);x.closePath();x.fill();
+      x.restore();
+    }
+    x.restore();
+  });
+  // Edge midpoint diamonds
+  [[W/2,m],[W/2,H-m],[m,H/2],[W-m,H/2]].forEach(function(p){
+    x.save();x.translate(p[0],p[1]);x.rotate(Math.PI/4);
+    x.fillStyle=gold+".3)";x.fillRect(-4,-4,8,8);x.restore();
+  });
+}
+
+function drawArabesque(x,W,H){
+  // Subtle geometric mandala watermark
+  x.save();x.globalAlpha=0.03;x.translate(W/2,H/2);x.strokeStyle="#c9a84c";x.lineWidth=1.5;
+  for(var ring=0;ring<3;ring++){
+    var r=120+ring*80;
+    for(var i=0;i<12;i++){
+      var a=i*Math.PI/6;
+      x.save();x.rotate(a);
+      x.beginPath();x.moveTo(0,-r);x.lineTo(r*.15,-r*.85);x.lineTo(0,-r*.7);x.lineTo(-r*.15,-r*.85);x.closePath();x.stroke();
+      // Small circles at tips
+      x.beginPath();x.arc(0,-r,3,0,Math.PI*2);x.stroke();
+      x.restore();
+    }
+    // Ring circle
+    x.beginPath();x.arc(0,0,r*.75,0,Math.PI*2);x.stroke();
+  }
+  x.restore();
+}
+
+function drawGoldDivider(x,W,y){
+  var g=x.createLinearGradient(W*.25,0,W*.75,0);
+  g.addColorStop(0,"transparent");g.addColorStop(.5,"#c9a84c");g.addColorStop(1,"transparent");
+  x.strokeStyle=g;x.lineWidth=1;x.beginPath();x.moveTo(W*.25,y);x.lineTo(W*.75,y);x.stroke();
+  x.fillStyle="#c9a84c";x.save();x.translate(W/2,y);x.rotate(Math.PI/4);x.fillRect(-4,-4,8,8);x.restore();
+}
+
+function wrapCardText(x,text,font,maxW){
+  x.font=font;
+  var words=text.split(" "),lines=[],cur="";
+  for(var i=0;i<words.length;i++){
+    var test=cur?cur+" "+words[i]:words[i];
+    if(x.measureText(test).width>maxW&&cur){lines.push(cur);cur=words[i]}else{cur=test}
+  }
+  if(cur)lines.push(cur);
+  return lines;
+}
+
+function getTopicLabel(d){
+  var cats=d.c||[];
+  var labels={forgiveness:"Dua for Forgiveness",rizq:"Dua for Rizq",anxiety:"Dua for Peace of Mind",guidance:"Dua for Guidance",healing:"Dua for Healing",protection:"Dua for Protection",grief:"Dua for Comfort",gratitude:"Dua of Gratitude",children:"Dua for Children",parents:"Dua for Parents",marriage:"Dua for Marriage",knowledge:"Dua for Knowledge",travel:"Dua for Travel",anger:"Dua for Patience",ramadan:"Dua for Ramadan",morning:"Morning Supplication"};
+  for(var i=0;i<cats.length;i++){if(labels[cats[i]])return labels[cats[i]]}
+  return "Authentic Supplication";
+}
+
+function generateCard(idx,mode,callback){
+  // mode: "post" (1080x1350), "story" (1080x1920), "dynamic" (1080xAuto)
   var d=res.duas[idx];
   if(!d)return;
-  var W=1080,H=1350;
-  var c=document.createElement("canvas");
-  c.width=W;c.height=H;
+  var W=1080,maxW=W-180;
+  var name=res.pairedNames?res.pairedNames[idx]:null;
+
+  // Pre-calculate content height
+  var tmpC=document.createElement("canvas");tmpC.width=W;var tx=tmpC.getContext("2d");
+  var arabicLines=wrapCardText(tx,d.a,"36px Amiri, serif",maxW);
+  var transLines=wrapCardText(tx,d.t||"","italic 20px Cormorant Garamond, serif",maxW);
+  var engLines=wrapCardText(tx,d.e,"300 22px Outfit, sans-serif",maxW);
+
+  var contentH=140; // top padding + bismillah + topic
+  contentH+=Math.min(arabicLines.length,8)*52+30; // arabic + gap
+  contentH+=Math.min(transLines.length,4)*28+25; // trans + gap
+  contentH+=Math.min(engLines.length,10)*34+30; // english + gap
+  contentH+=30; // source
+  if(name)contentH+=100; // name of allah section
+  contentH+=120; // bottom branding
+
+  var H;
+  if(mode==="story")H=1920;
+  else if(mode==="post")H=1350;
+  else H=Math.max(900,Math.min(1920,contentH));
+
+  var c=document.createElement("canvas");c.width=W;c.height=H;
   var x=c.getContext("2d");
 
-  // Background gradient
+  // Background
   var bg=x.createLinearGradient(0,0,0,H);
-  bg.addColorStop(0,"#080c18");bg.addColorStop(.5,"#0d1326");bg.addColorStop(1,"#080c18");
+  bg.addColorStop(0,"#060a14");bg.addColorStop(.3,"#0b1022");bg.addColorStop(.7,"#0d1326");bg.addColorStop(1,"#060a14");
   x.fillStyle=bg;x.fillRect(0,0,W,H);
 
-  // Decorative border
-  x.strokeStyle="rgba(201,168,76,.25)";x.lineWidth=2;
-  x.strokeRect(40,40,W-80,H-80);
+  // Arabesque watermark
+  drawArabesque(x,W,H);
 
-  // Corner accents
-  [[50,50],[W-50,50],[50,H-50],[W-50,H-50]].forEach(function(p){
-    x.fillStyle="#c9a84c";x.beginPath();x.save();x.translate(p[0],p[1]);x.rotate(Math.PI/4);
-    x.rect(-5,-5,10,10);x.fill();x.restore();
-  });
+  // Islamic geometric border
+  drawIslamicBorder(x,W,H,35);
 
-  // Top decorative line
-  var lg=x.createLinearGradient(W*.25,0,W*.75,0);
-  lg.addColorStop(0,"transparent");lg.addColorStop(.5,"#c9a84c");lg.addColorStop(1,"transparent");
-  x.strokeStyle=lg;x.lineWidth=1;
-  x.beginPath();x.moveTo(W*.25,120);x.lineTo(W*.75,120);x.stroke();
+  // Topic label
+  var topicY=mode==="story"?90:75;
+  x.font="600 13px Outfit, sans-serif";x.fillStyle="rgba(201,168,76,.7)";x.textAlign="center";
+  x.letterSpacing="3px";
+  x.fillText(getTopicLabel(d).toUpperCase(),W/2,topicY);
 
   // Bismillah
-  x.font="28px Amiri, serif";x.fillStyle="rgba(201,168,76,.6)";x.textAlign="center";
-  x.fillText("\u0628\u0650\u0633\u0652\u0645\u0650 \u0627\u0644\u0644\u0647\u0650 \u0627\u0644\u0631\u0651\u064e\u062d\u0652\u0645\u0670\u0646\u0650 \u0627\u0644\u0631\u0651\u064e\u062d\u0650\u064a\u0645\u0650",W/2,100);
+  var bismY=topicY+40;
+  x.font="26px Amiri, serif";x.fillStyle="rgba(201,168,76,.5)";
+  x.fillText("\u0628\u0650\u0633\u0652\u0645\u0650 \u0627\u0644\u0644\u0647\u0650 \u0627\u0644\u0631\u0651\u064e\u062d\u0652\u0645\u0670\u0646\u0650 \u0627\u0644\u0631\u0651\u064e\u062d\u0650\u064a\u0645\u0650",W/2,bismY);
 
-  // Word wrap helper
-  function wrapText(text,font,maxW){
-    x.font=font;
-    var words=text.split(" "),lines=[],cur="";
-    for(var i=0;i<words.length;i++){
-      var test=cur?cur+" "+words[i]:words[i];
-      if(x.measureText(test).width>maxW&&cur){lines.push(cur);cur=words[i]}else{cur=test}
-    }
-    if(cur)lines.push(cur);
-    return lines;
-  }
-
-  var maxW=W-160;
-
-  // Arabic
-  x.direction="rtl";
-  var arabicLines=wrapText(d.a,"36px Amiri, serif",maxW);
-  x.font="36px Amiri, serif";x.fillStyle="#f0e6d3";x.textAlign="center";
-  var aY=180,aLineH=55,maxALines=Math.min(arabicLines.length,8);
+  // Arabic text
+  var aY=bismY+50;
+  x.font="36px Amiri, serif";x.fillStyle="#f0e6d3";x.direction="rtl";
+  var maxALines=Math.min(arabicLines.length,8),aLineH=52;
   for(var i=0;i<maxALines;i++)x.fillText(arabicLines[i],W/2,aY+i*aLineH);
 
   // Divider
-  var divY=aY+maxALines*aLineH+20;
-  var dg=x.createLinearGradient(W*.3,0,W*.7,0);
-  dg.addColorStop(0,"transparent");dg.addColorStop(.5,"#c9a84c");dg.addColorStop(1,"transparent");
-  x.strokeStyle=dg;x.lineWidth=1;
-  x.beginPath();x.moveTo(W*.3,divY);x.lineTo(W*.7,divY);x.stroke();
-  x.fillStyle="#c9a84c";x.save();x.translate(W/2,divY);x.rotate(Math.PI/4);
-  x.fillRect(-4,-4,8,8);x.restore();
+  var divY=aY+maxALines*aLineH+15;
+  drawGoldDivider(x,W,divY);
 
   // Transliteration
   x.direction="ltr";
-  var transLines=wrapText(d.t||"","italic 20px Cormorant Garamond, serif",maxW);
-  x.font="italic 20px Cormorant Garamond, serif";x.fillStyle="#e4c870";x.textAlign="center";
-  var tY=divY+40,tLineH=30,maxTLines=Math.min(transLines.length,4);
+  x.font="italic 20px Cormorant Garamond, serif";x.fillStyle="#e4c870";
+  var tY=divY+35,tLineH=28,maxTLines=Math.min(transLines.length,4);
   for(var i=0;i<maxTLines;i++)x.fillText(transLines[i],W/2,tY+i*tLineH);
 
+  // Small divider
+  var div2Y=tY+maxTLines*tLineH+12;
+  x.strokeStyle="rgba(201,168,76,.15)";x.lineWidth=1;
+  x.beginPath();x.moveTo(W*.35,div2Y);x.lineTo(W*.65,div2Y);x.stroke();
+
   // English
-  var engLines=wrapText(d.e,"300 24px Outfit, sans-serif",maxW);
-  x.font="300 24px Outfit, sans-serif";x.fillStyle="#d4cfc7";x.textAlign="center";
-  var eY=tY+maxTLines*tLineH+25,eLineH=36,maxELines=Math.min(engLines.length,8);
+  x.font="300 22px Outfit, sans-serif";x.fillStyle="#d4cfc7";
+  var eY=div2Y+28,eLineH=34,maxELines=Math.min(engLines.length,10);
   for(var i=0;i<maxELines;i++)x.fillText(engLines[i],W/2,eY+i*eLineH);
 
   // Source
-  x.font="18px Outfit, sans-serif";x.fillStyle="#8a8599";
-  x.fillText(d.s,W/2,eY+maxELines*eLineH+30);
+  var srcY=eY+maxELines*eLineH+25;
+  x.font="14px Outfit, sans-serif";x.fillStyle="#6a6578";
+  x.fillText(d.s,W/2,srcY);
+
+  // Name of Allah (if paired)
+  var nameEndY=srcY+15;
+  if(name){
+    var nY=srcY+35;
+    drawGoldDivider(x,W,nY);
+    x.font="10px Outfit, sans-serif";x.fillStyle="rgba(201,168,76,.6)";
+    x.fillText("CALL UPON ALLAH BY THIS NAME",W/2,nY+25);
+    x.font="32px Amiri, serif";x.fillStyle="#c9a84c";
+    x.fillText(name.a,W/2,nY+65);
+    x.font="15px Cormorant Garamond, serif";x.fillStyle="#f0e6d3";
+    x.fillText(name.r+" — "+name.m,W/2,nY+88);
+    nameEndY=nY+100;
+  }
 
   // Bottom branding
-  x.strokeStyle="rgba(201,168,76,.2)";x.lineWidth=1;
-  x.beginPath();x.moveTo(W*.2,H-120);x.lineTo(W*.8,H-120);x.stroke();
-  x.font="600 36px Cormorant Garamond, serif";
-  var fullW=x.measureText("Qalbi").width,qalW=x.measureText("Qal").width,startX=W/2-fullW/2;
-  x.textAlign="left";x.fillStyle="#f0e6d3";
-  x.fillText("Qal",startX,H-72);
-  x.fillStyle="#c9a84c";
-  x.fillText("bi",startX+qalW,H-72);
+  var brandY=Math.max(nameEndY+40,H-90);
+  x.strokeStyle="rgba(201,168,76,.15)";x.lineWidth=1;
+  x.beginPath();x.moveTo(W*.25,brandY);x.lineTo(W*.75,brandY);x.stroke();
+  x.font="600 32px Cormorant Garamond, serif";
+  var fullW=x.measureText("Qalbi").width,qalW=x.measureText("Qal").width,sX=W/2-fullW/2;
+  x.textAlign="left";x.fillStyle="#f0e6d3";x.fillText("Qal",sX,brandY+40);
+  x.fillStyle="#c9a84c";x.fillText("bi",sX+qalW,brandY+40);
 
   c.toBlob(function(blob){callback(blob,d)},"image/png");
 }
 
+function generateCarousel(callback){
+  var blobs=[];
+  var total=res.duas.length;
+  var done=0;
+  res.duas.forEach(function(d,i){
+    var origIdx=i;
+    generateCard(i,"post",function(blob){
+      blobs[origIdx]={blob:blob,d:d};
+      done++;
+      if(done===total)callback(blobs);
+    });
+  });
+}
+
 function shareCard(idx){
-  generateCardBlob(idx,function(blob,d){
+  generateCard(idx,"post",function(blob,d){
     var file=new File([blob],"qalbi-dua.png",{type:"image/png"});
     if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
       navigator.share({files:[file],title:"Du'a from Qalbi",text:d.e.substring(0,100)+"..."}).catch(function(){});
     }else{
-      // Fallback: download
-      var a=document.createElement("a");
-      a.href=URL.createObjectURL(blob);a.download="qalbi-dua.png";a.click();URL.revokeObjectURL(a.href);
+      var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="qalbi-dua.png";a.click();URL.revokeObjectURL(a.href);
+    }
+  });
+}
+
+function shareStory(idx){
+  generateCard(idx,"story",function(blob,d){
+    var file=new File([blob],"qalbi-story.png",{type:"image/png"});
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:"Du'a from Qalbi"}).catch(function(){});
+    }else{
+      var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="qalbi-story.png";a.click();URL.revokeObjectURL(a.href);
     }
   });
 }
 
 function downloadCard(idx){
-  generateCardBlob(idx,function(blob){
-    var a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);a.download="qalbi-dua-"+(idx+1)+".png";a.click();
+  generateCard(idx,"dynamic",function(blob){
+    var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="qalbi-dua-"+(idx+1)+".png";a.click();
     setTimeout(function(){URL.revokeObjectURL(a.href)},1000);
+  });
+}
+
+function downloadCarousel(){
+  generateCarousel(function(blobs){
+    blobs.forEach(function(item,i){
+      setTimeout(function(){
+        var a=document.createElement("a");a.href=URL.createObjectURL(item.blob);a.download="qalbi-"+(i+1)+"-of-"+blobs.length+".png";a.click();
+        setTimeout(function(){URL.revokeObjectURL(a.href)},1000);
+      },i*500);
+    });
   });
 }
 
